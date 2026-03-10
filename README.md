@@ -312,7 +312,7 @@ The model is served via a Flask REST API and called by the backend's `/api/ai/pr
 
 ## Screenshots
 
-> _Add screenshots of the Admin Dashboard, Loan Application form, AI Eligibility Checker, and Repayment Schedule here._
+<img width="1919" height="942" alt="image" src="https://github.com/user-attachments/assets/02b5703a-9bfb-4a85-89c8-54c97cf337bc" />
 
 ---
 
