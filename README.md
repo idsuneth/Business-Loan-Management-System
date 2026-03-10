@@ -21,7 +21,6 @@ A full-stack loan management system with AI-powered eligibility checking, role-b
 - [Database Schema](#database-schema)
 - [AI Model](#ai-model)
 - [Screenshots](#screenshots)
-- [License](#license)
 
 ---
 
@@ -328,6 +327,4 @@ The model is served via a Flask REST API and called by the backend's `/api/ai/pr
 
 ---
 
-## License
 
-This project is licensed under the [MIT License](LICENSE).
