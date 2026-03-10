@@ -1,0 +1,128 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+  role  String
+  password String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Customer {
+  id              Int     @id @default(autoincrement())
+  customerId      String  @unique
+  fullName        String
+  nic             String  @unique
+  email           String  @unique
+  phone           String?
+  gender          String?
+  age             Int?
+  address         String?
+  city            String?
+  occupation      String?
+  employer        String?
+  monthlyIncome   Float?
+  kycDocuments    String?
+  status          String  @default("active")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  loans           Loan[]
+}
+
+model Loan {
+  id              Int     @id @default(autoincrement())
+  loanId          String  @unique
+  customerId      Int
+  customer        Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  loanTypeId      Int
+  loanType        LoanType @relation(fields: [loanTypeId], references: [id])
+  loanAmount      Float
+  duration        Int
+  interestRate    Float
+  monthlyIncome   Float?
+  existingDebts   Float   @default(0)
+  creditScore     Int
+  aiProbability   Float?
+  aiRiskScore     Float?
+  aiRiskCategory  String?
+  collateral      String?
+  collateralValue Float?
+  collateralDocument String?
+  status          String  @default("pending")
+  createdAt       DateTime @default(now())
+  approvedAt      DateTime?
+  approvedBy      Int?
+  updatedAt       DateTime @updatedAt
+  repayments      Repayment[]
+}
+
+model LoanType {
+  id              Int     @id @default(autoincrement())
+  name            String  @unique
+  description     String?
+  interestRate    Float
+  latePaymentRate Float
+  processingFee   Float
+  minAmount       Float
+  maxAmount       Float
+  minTerm         Int
+  maxTerm         Int
+  isActive        Boolean @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  loans           Loan[]
+}
+
+model Repayment {
+  id              Int      @id @default(autoincrement())
+  paymentId       String   @unique
+  loanId          Int
+  loan            Loan     @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  amount          Float
+  paymentType     String   @default("monthly") // monthly, partial, full
+  dueDate         DateTime?
+  paidDate        DateTime?
+  month           Int?     // Month number (1-12)
+  year            Int?     // Year of payment
+  week            Int?     // Week number (1-52)
+  status          String   @default("pending") // pending, paid, overdue
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Activity {
+  id          Int      @id @default(autoincrement())
+  type        String   // customer_registered, loan_application, loan_approved, interest_rate_changed, payment_received
+  title       String?
+  description String
+  entityType  String?  // customer, loan, payment, settings
+  entityId    Int?
+  userId      Int?
+  createdAt   DateTime @default(now())
+}
+
+model Notification {
+  id          Int      @id @default(autoincrement())
+  type        String   // loan_pending, loan_overdue, payment_due, system
+  title       String
+  message     String
+  priority    String   @default("medium") // low, medium, high, urgent
+  isRead      Boolean  @default(false)
+  entityType  String?  // loan, customer, payment
+  entityId    Int?
+  createdAt   DateTime @default(now())
+  readAt      DateTime?
+}

@@ -1,0 +1,168 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  fullName  String
+  role      String   @default("officer") // admin, officer
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  loans     Loan[]
+}
+
+model Customer {
+  id             Int      @id @default(autoincrement())
+  fullName       String
+  nic            String   @unique
+  email          String   @unique
+  phone          String?
+  gender         String?
+  age            Int?
+  address        String?
+  city           String?
+  state          String?
+  zipCode        String?
+  occupation     String?
+  employer       String?
+  monthlyIncome  Float?
+  kycDocuments   String?
+  status         String   @default("active")
+  creditScore    Int?
+  dateOfBirth    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  loans          Loan[]
+}
+
+// Loan Types with dynamic interest rates
+model LoanType {
+  id               Int      @id @default(autoincrement())
+  name             String   @unique
+  description      String?
+  interestRate     Float    // Base interest rate (annual percentage)
+  latePaymentRate  Float    @default(0.05) // Late payment interest rate (daily percentage)
+  processingFee    Float    @default(0) // One-time processing fee percentage
+  minAmount        Float    @default(1000)
+  maxAmount        Float    @default(1000000)
+  minTerm          Int      @default(3) // Minimum term in months
+  maxTerm          Int      @default(60) // Maximum term in months
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  loans            Loan[]
+}
+
+model Loan {
+  id              Int      @id @default(autoincrement())
+  customerId      Int
+  customer        Customer @relation(fields: [customerId], references: [id])
+  userId          Int?
+  user            User?    @relation(fields: [userId], references: [id])
+  loanTypeId      Int?
+  loanType        LoanType? @relation(fields: [loanTypeId], references: [id])
+  
+  amount          Float    // Principal amount
+  term            Int      // in months
+  interestRate    Float    // Snapshot of interest rate at loan creation
+  latePaymentRate Float?   // Snapshot of late payment rate
+  processingFee   Float?   // Processing fee amount
+  purpose         String
+  status          String   @default("pending") // pending, approved, rejected, disbursed, active, completed, defaulted
+  
+  // Calculated amounts
+  totalInterest   Float?   // Total interest over loan term
+  totalAmount     Float?   // Principal + Interest + Fees
+  monthlyPayment  Float?   // Monthly EMI
+  
+  collateralType      String?
+  collateralValue     Float?
+  collateralDocuments String?   // JSON: file paths for property deed / guarantor NIC images
+  notes               String?
+  
+  riskScore       Float?
+  aiRecommendation String?
+  
+  disbursedAt     DateTime?
+  approvedAt      DateTime?
+  approvedBy      String?
+  rejectedAt      DateTime?
+  rejectedBy      String?
+  rejectionReason String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  repayments      Repayment[]
+}
+
+model Repayment {
+  id              Int      @id @default(autoincrement())
+  loanId          Int
+  loan            Loan     @relation(fields: [loanId], references: [id])
+  
+  monthNumber     Int      // Which month of the loan (1, 2, 3, etc.)
+  amount          Float    // Total amount due/paid
+  principalAmount Float?   // Principal portion of payment
+  regularInterest Float?   // Regular interest portion
+  lateInterest    Float?   // Late payment interest (if overdue)
+  penalty         Float?   // Any additional penalty
+  
+  dueDate         DateTime
+  paidDate        DateTime?
+  daysOverdue     Int      @default(0) // Number of days payment was overdue
+  status          String   @default("pending") // pending, paid, overdue, partial
+  
+  paymentMethod   String?  // cash, bank_transfer, mobile_money, etc.
+  transactionRef  String?  // Transaction reference number
+  receivedBy      String?  // Officer who received payment
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Notification logs
+model Notification {
+  id            Int      @id @default(autoincrement())
+  type          String   // loan_pending, loan_overdue, payment_due, system
+  title         String
+  message       String
+  priority      String   @default("medium") // low, medium, high, urgent
+  isRead        Boolean  @default(false)
+  entityType    String?  // loan, customer, payment
+  entityId      Int?
+  createdAt     DateTime @default(now())
+  readAt        DateTime?
+}
+
+// Activity log for recent activities
+model Activity {
+  id          Int      @id @default(autoincrement())
+  type        String   // customer_registered, loan_application, loan_approved, interest_rate_changed, payment_received
+  title       String?
+  description String
+  entityType  String?  // customer, loan, payment, settings
+  entityId    Int?
+  userId      Int?
+  createdAt   DateTime @default(now())
+}
+
+// Notification settings
+model NotificationSetting {
+  id                    Int      @id @default(autoincrement())
+  settingKey            String   @unique
+  settingValue          String
+  description           String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
