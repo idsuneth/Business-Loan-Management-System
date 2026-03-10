@@ -21,7 +21,6 @@ A full-stack loan management system with AI-powered eligibility checking, role-b
 - [Database Schema](#database-schema)
 - [AI Model](#ai-model)
 - [Screenshots](#screenshots)
-- [License](#license)
 
 ---
 
@@ -312,10 +311,20 @@ The model is served via a Flask REST API and called by the backend's `/api/ai/pr
 
 ## Screenshots
 
-> _Add screenshots of the Admin Dashboard, Loan Application form, AI Eligibility Checker, and Repayment Schedule here._
+<img width="1919" height="942" alt="image" src="https://github.com/user-attachments/assets/02b5703a-9bfb-4a85-89c8-54c97cf337bc" />
+
+
+<img width="1919" height="944" alt="image" src="https://github.com/user-attachments/assets/98bf7200-5657-489d-aefe-9a6d4d55a117" />
+
+
+<img width="1919" height="944" alt="image" src="https://github.com/user-attachments/assets/08dd22d9-edd9-45e6-843c-273bee244d56" />
+
+
+<img width="1919" height="945" alt="image" src="https://github.com/user-attachments/assets/612beef8-6e4e-4bbe-bd53-6d6e96451c6f" />
+
+
+
 
 ---
 
-## License
 
-This project is licensed under the [MIT License](LICENSE).
